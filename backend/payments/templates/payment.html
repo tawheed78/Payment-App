@@ -1,0 +1,31 @@
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<form action="http://127.0.0.1:8000/payment/success/" method="POST">
+  
+   <input type="hidden" name="order_id" value="{{ order_id }}">
+   <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+    <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+   <script>
+       var options = {
+           "key": "{{ settings.API_KEY }}",
+           "amount": "{{ amount }}",
+           "currency": "INR",
+           "name": "Your Company Name",
+           "description": "Payment Description",
+           "order_id": "{{ order_id }}",
+           "handler": function(response) {
+               // Handle the payment success response
+               // You can submit the form or redirect to a success page
+               document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+               document.forms[0].submit();
+           },
+           "prefill": {
+               "name": "John Doe",
+               "email": "john@example.com",
+               "contact": "8879896994"
+           }
+       };
+       var rzp = new Razorpay(options);
+       rzp.open();
+   </script>
+</form>

@@ -1,0 +1,38 @@
+# Django settings
+*.pyc
+*.pyo
+__pycache__/
+db.sqlite3
+
+# Environment variables
+.env
+
+# Static files
+staticfiles/
+media/
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+
+# Log files
+*.log
+
+# Coverage reports
+.coverage
+.tox/
+.nox/
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+
+# Node modules (if you use frontend frameworks)
+node_modules/

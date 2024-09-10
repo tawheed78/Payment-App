@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input, select, button {
+            margin-bottom: 15px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Payment Form</h2>
+    <form method="POST" action="{% url 'payment' %}">
+        
+        <label for="amount">Amount (INR):</label>
+        <input type="number" name="amount" id="amount" required placeholder="Enter amount">
+
+        <label for="payment_gateway">Select Payment Gateway:</label>
+        <select name="payment_gateway" id="payment_gateway" required>
+            <option value="razorpay">Razorpay</option>
+            <option value="paypal">PayPal</option>
+            <option value="stripe">Stripe</option>
+        </select>
+
+        <button type="submit">Proceed to Payment</button>
+    </form>
+</div>
+
+</body>
+</html>
