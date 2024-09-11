@@ -1,5 +1,6 @@
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from .utils import initiate_payment, client
+from .utils import initiate_payment, client, create_checkout_session
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 
@@ -13,7 +14,6 @@ def home_view(request):
             'payment_gateway': payment_gateway
         }
         if payment_gateway == 'Razorpay':
-            # payment_view(int(amount))
             return redirect('payment', amount=amount)
     return render(request, 'home.html')     
 
@@ -25,12 +25,11 @@ def payment_view(request):
        'order_id': order_id,
        'amount': amount
    }
-   print(context)
+
    return render(request, 'payment.html', context)
 
 @csrf_exempt
 def payment_success_view(request):
-   print(request.POST)
    order_id = request.POST.get('order_id')
    payment_id = request.POST.get('razorpay_payment_id')
    signature = request.POST.get('razorpay_signature')
@@ -39,13 +38,30 @@ def payment_success_view(request):
        'razorpay_payment_id': payment_id,
        'razorpay_signature': signature
    }
-   print(params_dict)
+
    try:
        client.utility.verify_payment_signature(params_dict)
-       # Payment signature verification successful
-       # Perform any required actions (e.g., update the order status)
        return render(request, 'payment_success.html')
    except razorpay.errors.SignatureVerificationError as e:
-       # Payment signature verification failed
-       # Handle the error accordingly
        return render(request, 'payment_failure.html')
+   
+@csrf_exempt
+def stripe_checkout_view(request):
+    if request.method=='POST':
+        try:
+            # amount = request.POST.get('amount')
+            price_id = request.POST.get('price_1Pxk8AHHXJvihBBWlXkqflwx', '{{PRICE_ID}}')
+            session_url = create_checkout_session()
+            return redirect(session_url)
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+    else:
+        return JsonResponse({'error': 'Invalid request method'})
+
+@csrf_exempt
+def success_view(request):
+    return render(request, 'success.html')
+
+@csrf_exempt
+def cancel_view(request):
+    return render(request, 'cancel.html')
