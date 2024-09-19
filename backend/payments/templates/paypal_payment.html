@@ -1,0 +1,112 @@
+<!-- <html>
+<head>
+    <title>PayPal Payment</title>
+</head>
+<body>
+    <h1>Make a Payment</h1>
+    <div id="paypal-button-container"></div>
+
+    <script src="https://www.paypal.com/sdk/js?client-id={{ client_id }}&currency=USD"></script>
+
+    <script>
+        paypal.Buttons({
+            createOrder: function(data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '{{ amount }}'
+                        }
+                    }]
+                });
+            },
+            onApprove: function(data, actions) {
+                return actions.order.capture().then(function(details) {
+                    
+                    alert('Transaction completed by ' + details.payer.name.given_name);
+                    window.location.href = 'http://127.0.0.1:8000/payment/paypal/success/'
+                });
+            }
+        }).render('#paypal-button-container');
+    </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayPal Payment</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .amount {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        #paypal-button-container {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Thanks for choosing us</h1>
+
+    <!-- Display the amount being paid -->
+    <div class="amount">Paying: ${{ amount }}</div>
+
+    <!-- PayPal Button Container -->
+    <div id="paypal-button-container"></div>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id={{ client_id }}&currency=USD"></script>
+
+<script>
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: '{{ amount }}' // Dynamically show the amount entered on the homepage
+                    }
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                // Successful transaction
+                alert('Transaction completed by ' + details.payer.name.given_name);
+
+                // Redirect to success page or process further backend logic
+                window.location.href = 'http://127.0.0.1:8000/payment/paypal/success/';
+            });
+        }
+    }).render('#paypal-button-container'); // Renders PayPal button in the div
+</script>
+
+</body>
+</html>
+

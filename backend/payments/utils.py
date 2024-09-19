@@ -4,7 +4,7 @@ import os, stripe
 from decouple import config
 
 client = razorpay.Client(auth=(settings.API_KEY, settings.API_SECRET))
-stripe.api_key = config('STRIPE_KEY')
+# stripe.api_key = config('STRIPE_KEY')
 YOUR_DOMAIN = 'http://127.0.0.1:8000'
 
 

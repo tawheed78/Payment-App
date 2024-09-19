@@ -1,5 +1,5 @@
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<form action="http://127.0.0.1:8000/payment/success/" method="POST">
+<form action="http://127.0.0.1:8000/payment/razorpay/success/" method="POST">
   
    <input type="hidden" name="order_id" value="{{ order_id }}">
    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
