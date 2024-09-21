@@ -102,6 +102,10 @@
 <body>
 
 <div class="container">
+    <form id="logoutForm" onsubmit="logoutUser(event)">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
     <h2>Payment Form</h2>
     <form method="POST" id="paymentForm" action="{% url 'payment-razorpay' %}">
         {% csrf_token %}
@@ -119,12 +123,31 @@
         <button type="submit">Proceed to Payment</button>
     </form>
 </div>
+<script>
+    async function logoutUser(event) {
+        event.preventDefault();
 
+        const response = await fetch('{% url "api-logout" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+        });
+
+        if (response.ok) {
+            window.location.href = '{% url "login" %}'; // Redirect to login page
+        } else {
+            const data = await response.json();
+            alert(data.error || 'Logout failed');
+        }
+    }
+</script>
 <script>
     function updateFormAction() {
         const paymentGateway = document.getElementById('payment_gateway').value;
         const form = document.getElementById('paymentForm');
-        
+        localStorage.getItem('token')
         // Dynamically update form action based on selected gateway
         if (paymentGateway === 'razorpay') {
             form.action = "{% url 'payment-razorpay' %}";

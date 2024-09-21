@@ -19,15 +19,28 @@ class PaymentToken(models.Model):
     token = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
-    @staticmethod
-    def generate_token(data):
+    # @staticmethod
+    # def generate_token(data):
+    #     return jwt.encode(
+    #         {"data": data, "exp": datetime.datetime.now() + datetime.timedelta(hours=1)},
+    #         settings.SECRET_KEY, algorithm="HS256"
+    #     )
+
+    # @staticmethod
+    # def verify_token(token):
+    #     try:
+    #         decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+    #         return decoded["data"]
+    #     except jwt.ExpiredSignatureError:
+    #         return None
+        
+def generate_token(data):
         return jwt.encode(
             {"data": data, "exp": datetime.datetime.now() + datetime.timedelta(hours=1)},
             settings.SECRET_KEY, algorithm="HS256"
         )
 
-    @staticmethod
-    def verify_token(token):
+def verify_token(token):
         try:
             decoded = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             return decoded["data"]

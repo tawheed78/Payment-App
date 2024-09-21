@@ -4,7 +4,11 @@
    <input type="hidden" name="order_id" value="{{ order_id }}">
    <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
     <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+    <input type="hidden" name="razorpay_auth_token" id="razorpay_auth_token">
    <script>
+    var token = localStorage.getItem('token')
+    console.log(token)
+    
        var options = {
            "key": "{{ settings.API_KEY }}",
            "amount": "{{ amount }}",
@@ -17,12 +21,13 @@
                // You can submit the form or redirect to a success page
                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
                 document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('razorpay_auth_token').value = token;
                document.forms[0].submit();
            },
            "prefill": {
-               "name": "John Doe",
-               "email": "john@example.com",
-               "contact": "8879896994"
+               "name": "{{ user }}",
+               "email": "{{ email }}",
+               "contact": "{{ phone_number}}"
            }
        };
        var rzp = new Razorpay(options);

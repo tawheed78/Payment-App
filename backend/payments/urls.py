@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import razorpay_payment_view, razorpay_payment_success_view, home_view, paypal_payment_view, paypal_payment_success_view
+from .views import razorpay_payment_view, home_view, paypal_payment_view, paypal_payment_success_view, razorpay_payment_success_view
 # success_view, cancel_view, stripe_checkout_view,
 
 urlpatterns = [
