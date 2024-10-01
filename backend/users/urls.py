@@ -22,4 +22,5 @@ urlpatterns = [
     # HTML Views
     path('register/', TemplateView.as_view(template_name='register.html'), name='register'),
     path('login/', TemplateView.as_view(template_name='login.html'), name='login'),
+    path('logout/', user_logout, name='logout'),
 ]

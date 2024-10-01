@@ -40,15 +40,14 @@
 <body>
 
 <div class="container">
-    <!-- Logout Form -->
     <form id="logoutForm" onsubmit="logoutUser(event)">
         {% csrf_token %}
         <button type="submit">Logout</button>
     </form>
-
     <h2>Payment Form</h2>
     <form method="POST" id="paymentForm" action="{% url 'payment-razorpay' %}">
         {% csrf_token %}
+        
         <label for="amount">Amount (INR):</label>
         <input type="number" name="amount" id="amount" required placeholder="Enter amount">
 
@@ -62,13 +61,11 @@
         <button type="submit">Proceed to Payment</button>
     </form>
 </div>
-
 <script>
     async function logoutUser(event) {
-        event.preventDefault();  // Prevent form submission
+        event.preventDefault();
 
-        // Call the logout API to end the session
-        const response = await fetch('{% url "logout" %}', {
+        const response = await fetch('{% url "api-logout" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -77,22 +74,18 @@
         });
 
         if (response.ok) {
-            // Clear the JWT token from localStorage
-            localStorage.removeItem('token');
-
-            // Redirect the user to the login page after logout
-            window.location.href = '{% url "login" %}';
+            window.location.href = '{% url "login" %}'; // Redirect to login page
         } else {
             const data = await response.json();
             alert(data.error || 'Logout failed');
         }
     }
 </script>
-
 <script>
     function updateFormAction() {
         const paymentGateway = document.getElementById('payment_gateway').value;
         const form = document.getElementById('paymentForm');
+        localStorage.getItem('token')
         // Dynamically update form action based on selected gateway
         if (paymentGateway === 'razorpay') {
             form.action = "{% url 'payment-razorpay' %}";

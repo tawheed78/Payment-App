@@ -40,46 +40,15 @@ def user_login(request):
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
     
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def user_logout(request):
-    logout(request)  # Log the user out
-    return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
-
-
-# @api_view(['POST'])
-# def user_login(request):
-#     if request.method == 'POST':
-#         username = request.data.get('username')
-#         password = request.data.get('password')
-
-#         user = None
-#         if '@' in username:
-#             try:
-#                 user = CustomUser.objects.get(email=username)
-#             except ObjectDoesNotExist:
-#                 pass
-
-#         if not user:
-#             user = authenticate(username=username, password=password)
-
-#         if user:
-#             # token, _ = Token.objects.get_or_create(user=user)
-#             token, _ = Token.objects.get(user=user)
-#             print(token.key)
-#             return Response({'token': token.key}, status=status.HTTP_200_OK)
-
-#         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-
 # @api_view(['POST'])
 # @permission_classes([IsAuthenticated])
 # def user_logout(request):
-#     if request.method == 'POST':
-#         try:
-#             # Delete the user's token to logout
-#             request.user.auth_token.delete()
-#             # return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
-#             return redirect('login')
-#         except Exception as e:
-#             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#     logout(request)  # Log the user out
+#     return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def user_logout(request):
+    if request.method == 'POST':
+        logout(request)  # Log the user out from the Django session
+        return Response({'message': 'Logout successful'}, status=200)
+    return Response({'error': 'Invalid request'}, status=400)
