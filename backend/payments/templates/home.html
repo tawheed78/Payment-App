@@ -58,7 +58,7 @@
             <option value="paypal">PayPal</option>
             <!-- <option value="stripe">Stripe</option> -->
         </select>
-
+        <input type="hidden" name="razorpay_auth_token" id="razorpay_auth_token">
         <button type="submit">Proceed to Payment</button>
     </form>
 </div>
@@ -91,8 +91,13 @@
 
 <script>
     function updateFormAction() {
+        
         const paymentGateway = document.getElementById('payment_gateway').value;
         const form = document.getElementById('paymentForm');
+        
+        // Set the token value in the hidden input field
+        // document.getElementById('razorpay_auth_token').value = token;
+
         // Dynamically update form action based on selected gateway
         if (paymentGateway === 'razorpay') {
             form.action = "{% url 'payment-razorpay' %}";
@@ -100,6 +105,11 @@
             form.action = "{% url 'payment-paypal' %}";
         }
     }
+    // Set token just before form submission
+    document.getElementById('paymentForm').addEventListener('submit', function(event) {
+        const token = localStorage.getItem('token');  // Get the token from localStorage
+        document.getElementById('razorpay_auth_token').value = token;  // Set it in the hidden input field
+    });
 </script>
 
 </body>

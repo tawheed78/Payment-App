@@ -40,14 +40,15 @@
 <body>
 
 <div class="container">
+    <!-- Logout Form -->
     <form id="logoutForm" onsubmit="logoutUser(event)">
         {% csrf_token %}
         <button type="submit">Logout</button>
     </form>
+
     <h2>Payment Form</h2>
     <form method="POST" id="paymentForm" action="{% url 'payment-razorpay' %}">
         {% csrf_token %}
-        
         <label for="amount">Amount (INR):</label>
         <input type="number" name="amount" id="amount" required placeholder="Enter amount">
 
@@ -58,14 +59,19 @@
             <!-- <option value="stripe">Stripe</option> -->
         </select>
 
+        <!-- Hidden field for Razorpay Token -->
+        <input type="hidden" name="razorpay_auth_token" id="razorpay_auth_token">
+
         <button type="submit">Proceed to Payment</button>
     </form>
 </div>
-<script>
-    async function logoutUser(event) {
-        event.preventDefault();
 
-        const response = await fetch('{% url "api-logout" %}', {
+<script>
+    // Function to handle the logout process
+    async function logoutUser(event) {
+        event.preventDefault();  // Prevent form submission
+
+        const response = await fetch('{% url "logout" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -74,19 +80,27 @@
         });
 
         if (response.ok) {
-            window.location.href = '{% url "login" %}'; // Redirect to login page
+            // Clear the JWT token from localStorage
+            localStorage.removeItem('token');
+
+            // Redirect the user to the login page after logout
+            window.location.href = '{% url "login" %}';
         } else {
             const data = await response.json();
             alert(data.error || 'Logout failed');
         }
     }
-</script>
-<script>
+
+    // Function to dynamically update the form action based on selected payment gateway
     function updateFormAction() {
         const paymentGateway = document.getElementById('payment_gateway').value;
         const form = document.getElementById('paymentForm');
-        localStorage.getItem('token')
-        // Dynamically update form action based on selected gateway
+        const token = localStorage.getItem('token'); // Retrieve token from localStorage
+
+        // Set the token value in the hidden input field
+        document.getElementById('razorpay_auth_token').value = token;
+
+        // Update form action based on selected gateway
         if (paymentGateway === 'razorpay') {
             form.action = "{% url 'payment-razorpay' %}";
         } else if (paymentGateway === 'paypal') {

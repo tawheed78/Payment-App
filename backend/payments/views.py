@@ -1,13 +1,12 @@
-from django.http import JsonResponse
-from django.shortcuts import redirect, render
-from .utils import initiate_payment, client, create_checkout_session
+from django.shortcuts import render
+from .utils import initiate_payment, client, fetch_current_time
 import razorpay
 from django.views.decorators.csrf import csrf_exempt
 from decouple import config
 from django.contrib.auth.decorators import login_required
-from .models import verify_token
+from .models import verify_token, create_logs, fetch_transaction_by_order_id
 from django.shortcuts import render
-from django.http import JsonResponse
+
 
 @login_required
 @csrf_exempt
@@ -25,6 +24,7 @@ def home_view(request):
 @csrf_exempt
 def razorpay_payment_view(request):
     user = request.user
+    payment_gateway = 'Razorpay'
     if not user.is_authenticated:
         error_message = "User not authenticated. Please log in."
         return render(request, 'payment_failure.html', {'error': error_message})
@@ -50,6 +50,7 @@ def razorpay_payment_view(request):
         return render(request, 'payment_failure.html', {'error': error_message})
     try:
         order_id = initiate_payment(amount)
+        create_logs(order_id, amount, payment_gateway, timestamp = fetch_current_time() , status='Initiated')
     except Exception as e:
         error_message = f"Payment initiation failed: {str(e)}"
         return render(request, 'payment_failure.html', {'error': error_message})
@@ -59,13 +60,15 @@ def razorpay_payment_view(request):
         'amount': amount,
         'user': username,
         'email': email,
-        'phone_number': phone_number
+        'phone_number': phone_number,
+        'token': token
     }
     return render(request, 'razorpay_payment.html', context)
 
 
 @csrf_exempt
 def razorpay_payment_success_view(request):
+    token = request.POST.get('token')
     order_id = request.POST.get('order_id')
     payment_id = request.POST.get('razorpay_payment_id')
     signature = request.POST.get('razorpay_signature')
@@ -80,17 +83,39 @@ def razorpay_payment_success_view(request):
         'razorpay_signature': signature
     }
     try:
+        order_data = fetch_transaction_by_order_id(order_id)
         client.utility.verify_payment_signature(params_dict)
+        create_logs(
+            order_id,
+            amount = order_data['amount'],
+            payment_gateway= order_data['payment_gateway'],
+            timestamp=fetch_current_time(),
+            status = 'Completed'
+        )
         return render(request, 'payment_success.html')
     
     except razorpay.errors.SignatureVerificationError as e:
         error = f"Signature verification failed: {str(e)}"
         context = {'error_message': error}
+        create_logs(
+            order_id,
+            amount = order_data['amount'],
+            payment_gateway= order_data['payment_gateway'],
+            timestamp=fetch_current_time(),
+            status = 'Failed'
+        )
         return render(request, 'payment_failure.html', context)
 
     except Exception as e:
         error = f"An unexpected error occurred: {str(e)}"
         context = {'error_message': error}
+        create_logs(
+            order_id,
+            amount = order_data['amount'],
+            payment_gateway= order_data['payment_gateway'],
+            timestamp=fetch_current_time(),
+            status = 'Failed'
+        )
         return render(request, 'payment_failure.html', context)
    
 
@@ -114,19 +139,19 @@ def paypal_payment_success_view(request):
     return render(request, 'payment_success.html')
 
 
-@csrf_exempt
-def stripe_checkout_view(request):
-    if request.method=='POST':
-        try:
-            # amount = request.POST.get('amount')
-            price_id = request.POST.get('price_1Pxk8AHHXJvihBBWlXkqflwx', '{{PRICE_ID}}')
-            session_url = create_checkout_session()
-            return redirect(session_url)
-        except Exception as e:
-            return JsonResponse({'error': str(e)})
-    else:
-        return JsonResponse({'error': 'Invalid request method'})
+# @csrf_exempt
+# def stripe_checkout_view(request):
+#     if request.method=='POST':
+#         try:
+#             # amount = request.POST.get('amount')
+#             price_id = request.POST.get('price_1Pxk8AHHXJvihBBWlXkqflwx', '{{PRICE_ID}}')
+#             session_url = create_checkout_session()
+#             return redirect(session_url)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)})
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'})
 
-@csrf_exempt
-def cancel_view(request):
-    return render(request, 'cancel.html')
+# @csrf_exempt
+# def cancel_view(request):
+#     return render(request, 'cancel.html')
