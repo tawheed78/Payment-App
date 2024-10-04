@@ -1,6 +1,6 @@
 import razorpay
 from django.conf import settings
-import os, stripe
+import time, stripe
 from decouple import config
 from datetime import datetime
 import pytz
@@ -17,10 +17,6 @@ def initiate_payment(amount, currency='INR'):
        'payment_capture': '1'
    }
    response = client.order.create(data=data)
-   #Need to change this code to have unique id directly from gateway
-   id = response['id']
-   new_id = id+fetch_current_time()
-   print(new_id)
    return response['id']
 
 def fetch_current_time():
@@ -28,6 +24,10 @@ def fetch_current_time():
     current_time = datetime.now(timezone)
     formatted_time = current_time.strftime('%Y-%m-%d %H:%M:%S %Z')
     return formatted_time
+
+def fetch_current_time_in_sec():
+    timestamp_in_seconds = int(time.time())
+    return str(timestamp_in_seconds)
 
 
 def create_checkout_session():

@@ -50,7 +50,7 @@ def razorpay_payment_view(request):
         return render(request, 'payment_failure.html', {'error': error_message})
     try:
         order_id = initiate_payment(amount)
-        create_logs(order_id, amount, payment_gateway, timestamp = fetch_current_time() , status='Initiated')
+        create_logs(user, order_id, amount, payment_gateway, timestamp = fetch_current_time() , status='Initiated')
     except Exception as e:
         error_message = f"Payment initiation failed: {str(e)}"
         return render(request, 'payment_failure.html', {'error': error_message})
@@ -68,7 +68,7 @@ def razorpay_payment_view(request):
 
 @csrf_exempt
 def razorpay_payment_success_view(request):
-    token = request.POST.get('token')
+    user = request.user
     order_id = request.POST.get('order_id')
     payment_id = request.POST.get('razorpay_payment_id')
     signature = request.POST.get('razorpay_signature')
@@ -86,6 +86,7 @@ def razorpay_payment_success_view(request):
         order_data = fetch_transaction_by_order_id(order_id)
         client.utility.verify_payment_signature(params_dict)
         create_logs(
+            user,
             order_id,
             amount = order_data['amount'],
             payment_gateway= order_data['payment_gateway'],
@@ -98,6 +99,7 @@ def razorpay_payment_success_view(request):
         error = f"Signature verification failed: {str(e)}"
         context = {'error_message': error}
         create_logs(
+            user,
             order_id,
             amount = order_data['amount'],
             payment_gateway= order_data['payment_gateway'],
@@ -110,6 +112,7 @@ def razorpay_payment_success_view(request):
         error = f"An unexpected error occurred: {str(e)}"
         context = {'error_message': error}
         create_logs(
+            user,
             order_id,
             amount = order_data['amount'],
             payment_gateway= order_data['payment_gateway'],
