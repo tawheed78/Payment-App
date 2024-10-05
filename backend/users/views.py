@@ -38,13 +38,6 @@ def user_login(request):
             return Response({'message': 'Login successful', 'token':token}, status=status.HTTP_200_OK)
 
         return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def user_logout(request):
-#     logout(request)  # Log the user out
-#     return Response({'message': 'Successfully logged out.'}, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def user_logout(request):
@@ -52,3 +45,15 @@ def user_logout(request):
         logout(request)  # Log the user out from the Django session
         return Response({'message': 'Logout successful'}, status=200)
     return Response({'error': 'Invalid request'}, status=400)
+
+
+@api_view(['GET'])
+def user_profile(request):
+    user = request.user
+    return Response({
+        'username': user.username,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'mobile': user.phone_number
+    })
